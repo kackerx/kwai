@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package user;
+
+import "google/api/annotations.proto";
+
+option go_package = "./;user";
+
+service User {
+  rpc Ping(PingReq) returns (PingResp);
+
+  rpc Hello(HelloReq) returns (HelloResp) {
+    option (google.api.http) = {
+      post: "/hello"
+      body: "*"
+    };
+  }
+}
+
+message PingReq {
+  string name = 1;
+}
+
+message PingResp {
+  string reason = 1;
+}
+
+message HelloReq {
+  string code = 1;
+}
+
+message HelloResp {
+  string msg = 1;
+}
