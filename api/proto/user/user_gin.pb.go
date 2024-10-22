@@ -20,6 +20,23 @@ func RegisterUserServerHTTPServer(srv UserServer, r gin.IRouter) {
 	s.RegisterService()
 }
 
+func (s *UserHttpServer) UserDetail_0(c *gin.Context) {
+	var in UserDetailReq
+
+	if err := c.ShouldBindJSON(&in); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	out, err := s.server.UserDetail(c, &in)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, out)
+}
+
 func (s *UserHttpServer) Ping_0(c *gin.Context) {
 	var in PingReq
 
@@ -72,6 +89,8 @@ func (s *UserHttpServer) Hehe_0(c *gin.Context) {
 }
 
 func (s *UserHttpServer) RegisterService() {
+
+	s.router.Handle("POST", "", s.UserDetail_0)
 
 	s.router.Handle("GET", "/ping", s.Ping_0)
 

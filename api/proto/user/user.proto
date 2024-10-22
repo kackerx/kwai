@@ -8,6 +8,8 @@ import "google/protobuf/empty.proto";
 option go_package = "./;user";
 
 service User {
+  rpc UserDetail(UserDetailReq) returns (UserDetailResp);
+
   rpc Ping(PingReq) returns (PingResp) {
     option (google.api.http) = {
       get: "/ping"
@@ -28,6 +30,15 @@ service User {
       body: "*"
     };
   }
+}
+
+message UserDetailReq {
+  string uid = 1;
+}
+
+message UserDetailResp {
+  string name = 1;
+  int32 age = 2;
 }
 
 message HeheReq {
