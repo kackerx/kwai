@@ -12,6 +12,9 @@ const (
 	OutputStdErr = "stderr"
 )
 
+type Heheh interface {
+}
+
 type Options struct {
 	OutputPaths      []string `json:"output_paths" mapstructure:"output_paths"`
 	ErrorOutputPaths []string `json:"error_output_paths" mapstructure:"error_output_paths"`
