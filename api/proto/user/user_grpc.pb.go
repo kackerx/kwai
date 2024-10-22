@@ -20,15 +20,17 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	User_Ping_FullMethodName  = "/user.User/Ping"
-	User_Hello_FullMethodName = "/user.User/Hello"
-	User_Hehe_FullMethodName  = "/user.User/Hehe"
+	User_UserDetail_FullMethodName = "/user.User/UserDetail"
+	User_Ping_FullMethodName       = "/user.User/Ping"
+	User_Hello_FullMethodName      = "/user.User/Hello"
+	User_Hehe_FullMethodName       = "/user.User/Hehe"
 )
 
 // UserClient is the client API for User service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UserClient interface {
+	UserDetail(ctx context.Context, in *UserDetailReq, opts ...grpc.CallOption) (*UserDetailResp, error)
 	Ping(ctx context.Context, in *PingReq, opts ...grpc.CallOption) (*PingResp, error)
 	Hello(ctx context.Context, in *HelloReq, opts ...grpc.CallOption) (*HelloResp, error)
 	Hehe(ctx context.Context, in *HeheReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -40,6 +42,16 @@ type userClient struct {
 
 func NewUserClient(cc grpc.ClientConnInterface) UserClient {
 	return &userClient{cc}
+}
+
+func (c *userClient) UserDetail(ctx context.Context, in *UserDetailReq, opts ...grpc.CallOption) (*UserDetailResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UserDetailResp)
+	err := c.cc.Invoke(ctx, User_UserDetail_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *userClient) Ping(ctx context.Context, in *PingReq, opts ...grpc.CallOption) (*PingResp, error) {
@@ -76,6 +88,7 @@ func (c *userClient) Hehe(ctx context.Context, in *HeheReq, opts ...grpc.CallOpt
 // All implementations must embed UnimplementedUserServer
 // for forward compatibility.
 type UserServer interface {
+	UserDetail(context.Context, *UserDetailReq) (*UserDetailResp, error)
 	Ping(context.Context, *PingReq) (*PingResp, error)
 	Hello(context.Context, *HelloReq) (*HelloResp, error)
 	Hehe(context.Context, *HeheReq) (*emptypb.Empty, error)
@@ -89,6 +102,9 @@ type UserServer interface {
 // pointer dereference when methods are called.
 type UnimplementedUserServer struct{}
 
+func (UnimplementedUserServer) UserDetail(context.Context, *UserDetailReq) (*UserDetailResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UserDetail not implemented")
+}
 func (UnimplementedUserServer) Ping(context.Context, *PingReq) (*PingResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Ping not implemented")
 }
@@ -117,6 +133,24 @@ func RegisterUserServer(s grpc.ServiceRegistrar, srv UserServer) {
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&User_ServiceDesc, srv)
+}
+
+func _User_UserDetail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserDetailReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).UserDetail(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: User_UserDetail_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).UserDetail(ctx, req.(*UserDetailReq))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _User_Ping_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -180,6 +214,10 @@ var User_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "user.User",
 	HandlerType: (*UserServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "UserDetail",
+			Handler:    _User_UserDetail_Handler,
+		},
 		{
 			MethodName: "Ping",
 			Handler:    _User_Ping_Handler,

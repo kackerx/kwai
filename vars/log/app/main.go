@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 
-	"kwai/log"
+	"kwai/vars/log"
 )
 
 func main() {
